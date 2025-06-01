@@ -1,0 +1,24 @@
+Reported bugs fixed in version 1.18
+
+- Did not evaluate 0-X to 2's compliment notation.  0-X is now evaluated to
+  100H-X for byte operands, and 10000H-X for word operands.  For example the
+  instruction: MOV A,#0-5 will now evaluate to MOV A,#251
+
+- Expressions such as the following: CTIME-2 evaluated improperly.  The original
+  equation evaluation trapped the E-2 in CTIME-2, as an exponent.  This has been
+  fixed (exponents can no longer be specified, not that they were needed in the
+  first place).
+
+- Simulation of the ORL P2,#Value instruction did not execute properly.  It would
+  be simulated as follows: P2 = P1 or Value.  One of the pit falls of the editors
+  cut and paste.  This has been fixed.
+
+- Version 1.18 no longer requires you to specify a home directory to locate the
+  help files.  It now looks at the command line passed by DOS to locate the
+  directory where the 8048.EXE program resides.  This is not actually a bug
+  but makes it a little more convienent when working with files in directories
+  other than the one containing the 8048.EXE program.
+
+- Availability of the 8748 chip programmer is now mentioned in the online manual
+  (sorry but it isn't available at this time).  Press <CTRL><F1> to get the main
+  index, go to Programmer, and read the opening paragraph.

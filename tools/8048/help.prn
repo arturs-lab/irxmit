@@ -1,0 +1,1584 @@
+
+
+
+       ECopy and Use RestrictionsF
+
+       The 8048 Assembler/Simulator/Programmer and this documentation
+       are Copyright (c) 1990-1993 Michael McCarrick.  This software is
+       Shareware (not Freeware), if you continue to use it you must
+       register it.  To register simply send $50.00 to:
+
+                                8048 Registration
+                             Attn. Michael McCarrick
+                                   P.O. Box 264
+                              Middleboro, MA 02346
+
+       Please include your name and address so I can record your
+       registration properly.  Registration entitles you to future
+       updates, up to but not including version 2.00.
+
+
+       EDisclaimerF
+
+       The 8048 Assembler/Simulator/Programmer software and this
+       documentation are provided "AS IS", without warranty of any kind.
+       By using this program (the 8048 Assembler/Simulator/Programmer
+       software) you are assuming all liability for anything which might
+       occur.  What I mean is if anything happens to you, your computer,
+       any possession of yours, or anything else, due to the use of this
+       program, I am not liable.
+
+       I have made every attempt to insure that this program operates
+       properly.  I have been using it for a number of years myself.
+       Due to the complexity of any program of this size, a change made
+       in one part of the program can and sometimes does inadvertently
+       generate problems in other areas.  Just be forewarned, save your
+       work regularly (BACK UP your software).
+
+       I also reserve the right to stop support and releasing updates of
+       this software at any time.
+
+
+       EContacting me (the Author)F
+
+       You can send any questions or report any problems to me at:
+
+                                Michael McCarrick
+                                   P.O.Box 264
+                              Middleboro, MA 02346
+
+       I can also be reached on CompuServe.
+       My CIS number is: 70401,2671
+
+       I also operate a BBS and can be reached at:
+
+                           (508)946-9864, 14400-8-N-1
+
+
+       E8048 Assembler/SimulatorF
+
+       The 8048 Assembler/Simulator development system is an integrated
+       Editor, Assembler, Simulator and Programmer for the 8048 family
+       of micro-controllers.  The development of the 8048 program takes
+       on the following steps:
+
+       1.  Enter/Edit the 8048 source code into the text buffer via the
+           Editor.
+
+       2.  Assemble the source code by selecting Assemble from the main
+           menu.
+
+       3.  If any errors are reported by step 2 restart at step 1.
+
+       4.  Simulate the 8048 program by stepping through the execution
+           of each line of source code.
+
+       5.  If logical errors are found in step 4 restart at step 1.
+
+       The 8048 program contains the following modules:
+
+       EFilesF: Load, Save, Save as, XMem file, Print, DOS Shell, Burn,
+       Info and Quit.
+
+       EEditF: Edit text buffer.
+
+       EAssembleF: Assemble the source in text buffer.
+
+       ESimulateF: Simulate source in text buffer.
+
+       EProgramF: Program, Blank check, Verify and Read chip.
+
+       EOptionsF: Specify various system settings.
+
+
+       Each of these units are explained in greater detail in subsequent
+       pages of this manual.
+
+
+       EGetting HelpF
+
+       You can receive help information from the 8048 program by
+       pressing the F1 function key.  This help screen is context
+       sensitive.  It will display information pertaining to the
+       location of the program your at when the F1 key is pressed.
+
+       You can also receive global help (display the on-line manual) by
+       pressing the CTRL F1 key sequence.  When this key sequence is
+       pressed a help index will be displayed.  From this index choose
+       the help topic by highlighting it and pressing the ENTER key.
+       You will be positioned into the on-line manual at the location
+       you selected.  Use the cursor control keys to scroll through the
+       manual.
+
+
+       EFilesF
+
+       The File menu allows you to load, save and print files as well as
+       exit the program.  The commands available from the File menu are:
+
+
+          ELoading a fileF
+
+       To load a file (already on disk) into the text buffer perform the
+       following steps:
+
+       1.  Select ELoadF from the Files menu.  You will be prompted to
+           enter the file name.
+
+       2.  Type the file name and press the ENTER key.  If the extension
+           is omitted then .ASM is assumed.
+
+       3.  You can also select a file from a list by entering a file
+           filter.  i.e. type *.LST to display a list of files ending
+           with .LST.  You can use any DOS wild card characters to
+           generate the list.  If you press ENTER on a blank line then
+           .ASM is assumed and files ending with .ASM will be displayed.
+
+       Once the file list is displayed use the cursor keys to highlight
+       the file you want to load and press the ENTER key.
+
+
+          ESave a fileF
+
+       To save a file in the text buffer perform the following steps:
+
+       1.  Select ESaveF from the File menu.
+
+       2.  If this is new text (not loaded from a file) then you will be
+           prompted to enter a file name.
+
+       3.  If the text already has a name then it will be saved under
+           that name automatically.
+
+
+          ESave a File Under a New NameF
+
+       To save a file in the text buffer under a new file name perform
+       the following steps:
+
+       1.  Select ESaveF as from the File menu.
+
+       2.  Enter the name of the file the text buffer is to be saved in.
+
+
+          EExternal Memory BufferF
+
+       The simulator allows you to execute commands which deal with
+       external memory (MOVX A,@R1 and MOVX @R1,A).  You can optionally
+       load values into an internal buffer used to simulate the memory
+       configuration depicted below:
+
+                   +----------+                   +----------+
+                   |       BUS|-------------------|AD0-AD7   |
+                   |       ALE|-------------------|ALE       |
+                   |  8048    |    +--------+     | 64k ROM  |
+                   |        P2|----|P2      |     |          |
+                   |      PROG|----|PROG  P4|-----|A8-A11    |
+                   +----------+    |      P5|-----|A12-A15   |
+                                   |  8243  |     +----------+
+                                   +--------+                 
+
+
+                          External Memory Configuration
+
+       this buffer is read only and does not save values resulting from
+       the MOVX @R1,A instruction.  To load a hex file into this buffer
+       perform the following steps:
+
+       1.  Select EXMem fileF from the main File menu.
+
+
+       2.  Enter the name of the file containing the data.  This file
+           must be in Intel Hex format.  Like the load command pressing
+           ENTER with no name specified will display a list of files
+           with the .HEX extension.
+
+       Once the file is selected the memory buffer will be allocated.
+       If there is insufficient memory to allocate the buffer then an
+       error will result and the data will not be loaded.  Once the
+       buffer has been allocated each time the MOVX A,@R1 instruction is
+       executed in the simulator the values will be retrieved from this
+       buffer.  If the buffer is not allocated you will be prompted to
+       enter a value each time the instruction is executed.
+
+
+          EPrinting the Text BufferF
+
+       The 8048 Assembler/Simulator allows you to print the text within
+       the editor from within the program.  Before you can use your
+       printer with this program you must specify which port your
+       printer is attached to.  To specify the printer port select
+       Options from the main menu, then Printer Port, and select which
+       port (1, 2 or 3).  Refer to the Options portion of this manual
+       for more information on setting the printer port.  To print the
+       text in the text buffer select Print from the File menu.
+
+
+          EDOS ShellF
+
+       You can temporarily suspend the 8048 program and go to DOS by
+       selecting EDOS ShellF from the File menu.  To return to the 8048
+       program type EEXITF at the DOS prompt.
+
+
+          EBurnF
+
+       This command executes the DOS command BURN with the name of the
+       currently loaded source file as a parameter.  You can use this
+       command to run a batch file which can execute any number of
+       commands.  I previously used this command to convert a hex file
+       (corresponding to the current source file) to an object, and
+       loaded software to program an 8748.  You can use this command for
+       any set of DOS commands you wish.
+
+
+          EInfoF
+
+       Displays the status of the text buffer.  Information on the name
+       of the current file, the size of the file, the size of the text
+       buffer and the number of bytes in the buffer unused.
+
+
+          EExiting the ProgramF
+
+       You can exit (quit) the 8048 program by selecting EQuitF from the
+       EFile Fmenu.  You can also exit by pressing <ALT><X>.
+
+
+       EEditorF
+
+       You can edit the text in the text buffer by selecting EEditF from
+       the main menu.  The editor will also be invoked automatically
+       after loading a file.  The text buffer will be empty if you
+       haven't load a file.  The editor is a limited full screen editor.
+       The editor does not provide word wrap and does not scroll
+       horizontally (the cursor stops at the rightmost screen position).
+
+
+          ESingle key commandsF
+
+       The editor has the following single key commands:
+
+       E<INSERT>F: Pressing the INSERT key toggles between insert and over
+       type mode (notice the cursor change shape).  In insert mode the
+       character under the cursor will be pushed to the right and the
+       character typed will be inserted at the cursor location.  In
+       over-type mode the character typed will replace the character
+       under the cursor.
+
+       E<DELETE>F: Pressing the DELETE key will remove the character under
+       the cursor.  All characters to the right will be moved one
+       location to the left.
+
+       E<HOME>F: Pressing the HOME key moves the cursor to the start of
+       the current line.
+
+       E<END>F: Pressing the END key will move the cursor to the END of
+       the current line.
+
+       E<PAGE UP>F: Pressing the PAGE UP key will display the previous
+       page of text.  If you are at the top of the text buffer then
+       pressing PAGE UP will be ignored.
+
+
+       E<PAGE DOWN>F: Pressing the PAGE DOWN key will display the next
+       page of text.  If you are at the bottom of the text buffer then
+       pressing PAGE DOWN will be ignored.
+
+       E<UP ARROW>F: Pressing the UP ARROW key moves the cursor up one
+       line.
+
+       E<DOWN ARROW>F: Pressing the DOWN ARROW key moves the cursor down
+       one line.
+
+       E<RIGHT ARROW>F: Pressing the RIGHT ARROW key moves the cursor one
+       location to the right.  If the cursor is at the end of a line
+       then it will be positioned to the start of the next line.
+
+       E<LEFT ARROW>F: Pressing the left arrow key moves the cursor one
+       location to the left.  If the cursor is at the start of a line
+       then the cursor is moved to the end of the previous line.
+
+
+          ECompound key commandsF
+
+       The editor also has the following compound key commands:
+
+       E<CTLR><PAGE UP>F: Pressing the CTRL and PAGE UP key sequence will
+       move the cursor to the top of the text buffer.
+
+       E<CTRL><PAGE DOWN>F: Pressing the CTRL and PAGE DOWN keys sequence
+       will move the cursor to the bottom of the text buffer.
+
+       E<CTRL><Q> <CTRL><F>F: Find string.  This command prompts you for a
+       string of characters.  The cursor will be positioned just after
+       the first occurrence of the specified search string.
+
+       E<CTRL><L>F: Repeat last find.  This command positions the cursor
+       just after the next occurrence of the string specified by the
+       last Find string command.
+
+
+          EBlock command sequencesF
+
+       The editor has the following block manipulation commands:
+
+       E<CTRL><K> <CTRL><B>F: Mark start of block.  This command places
+       the start of block pointer at the current cursor location.
+
+       E<CTRL><K> <CTRL><K>F: Mark the end of block.  This command places
+       the end of block pointer at the current cursor location.
+
+
+       E<CTRL><K> <CTRL><Y>F: Delete block.  This command deletes the
+       currently marked block (all text from start of block to end of
+       block).
+
+       E<CTRL><K> <CTRL><W>F: Write block.  This command writes the
+       currently marked block to a file you specify.
+
+       E<CTRL><K> <CTRL><R>F: Read block.  This command copies the text
+       from a file you specify to the text buffer starting at the
+       current cursor location.
+
+       E<CTRL><K> <CTRL><C>F: Copy block.  This command copies the
+       currently marked block of text to the current cursor location.
+
+
+       EAssemblerF
+
+       The source entered/loaded into the text buffer is assembled by
+       selecting EAssembleF from the main menu.  The number of errors
+       found in the source will be displayed on the screen.
+
+       If any errors are located pressing any key will position you into
+       the editor at the location of the line containing the first
+       error.
+
+       NOTE: Some errors will generate additional errors, usually the
+       first error is the actual offense.  If you fix an error and are
+       unable to see the problem with a subsequent error try
+       re-assembling the source.
+
+       Once an error is fixed pressing F8 will position you on the line
+       with the next error.  Pressing F7 will position you on the line
+       containing the previous error.  The F7 and F8 commands reflect
+       the number of the offending line at assemble time.  If you add a
+       new line or delete an existing line the offending line no longer
+       has the same line number as the one in the error list.  For this
+       reason if you add or delete lines containing errors re-assemble
+       the source to re-generate an accurate error/line number list.  If
+       no errors are reported you can simulate the source.
+
+       Refer to Appendix B - 8048 source format, for a description of
+       the layout of an 8048 assembly language program.
+
+
+       ESimulatorF
+
+       The simulator allows you to step through your source code
+       watching the registers, flags, ports and RAM memory change.  You
+       can step into, step over and execute to source lines.  The
+       simulator is entered by selecting ESimulateF from the main menu.
+
+       The simulator screen has five windows: source, flags, registers,
+       RAM memory and ports.  The active window contains the cursor and
+       is the source window when you first enter the simulator.
+
+       The flag window contains the status of each of the processors
+       flags.  The flags are defined as follows:
+
+            CY - Carry flag
+            AC - Alternate carry flag
+            BS - Register bank select
+            F0 - user flag zero
+            F1 - user flag one
+            MB - Memory bank select
+            T0 - Test pin zero
+            T1 - Test pin one
+            INT - Interrupt pin
+            IE - External interrupt enable flag
+            TOVF - Timer overflow flag
+            TCIE - Timer counter interrupt enable flag
+            TCE - Timer counter enable flag
+            T0E - T0 clock output enable flag
+
+       The Register window contains the values currently in the
+       processors registers.  The registers are defined as follows:
+
+          AC - Accumulator
+
+          R0-R7 - General purpose register set
+
+          SP - Stack pointer
+
+          PSW - Program status word (this register reflects the state of
+                 some flags)
+
+          PC - Program counter
+
+          TCNT - Timer counter
+
+       The port window displays the values each of the processors ports
+       (internal and external).  Ports P1, P2 and BUS reflect the state
+
+
+       on the processors external ports.  P4, P5, P6 and P7 reflect the
+       state of a single external 8243 I/O expander.
+
+       The memory window reflects the values in the processors internal
+       RAM.  The number of RAM locations are dependent on the chip type
+       specified in the options menu.
+
+       You can move from one window to the next by pressing the TAB or
+       SHIFT TAB keys.  Pressing the TAB key moves from window to window
+       in the clock wise direction.  Pressing SHIFT TAB moves from
+       window to window in the counter clock wise direction.
+
+       The flags, registers, memory locations and ports can be modified
+       by highlighting the item to be modified and pressing the ENTER
+       key.  A window will be open prompting you to enter the new value.
+       Entering a blank line will set the item to zero.  When a flag is
+       selected its value is toggled (1 to 0 and 0 to 1).
+
+       You can also modify flags, registers, RAM memory and ports from
+       any window by typing the command.  Start typing the command and a
+       window will open into which you finish typing the command.  The
+       following are a list of the commands:
+
+       FLAG flag i
+         flag: is the name of the flag to modify.
+         i: is the new state of the flag (0 or 1).
+
+       REGISTER reg value
+         reg: is the name of the register to be modified.
+         value: is any value/equation between 0 and 255.
+
+       RAM location value
+         location: is a RAM location between 0 and 255.
+         value: is any value/equation between 0 and 255.
+
+       PORT Pp value
+         Pp: is one of the ports displayed in the port window.
+         value: is any value/equation between 0 and 255.
+
+       Pressing F7 will cause the next instruction to be executed.  If
+       the instruction is a CALL then the simulator will step into the
+       subroutine.
+
+       Pressing F8 will cause the next instruction to be executed.  If
+       the instruction is a CALL then the simulator will execute all
+       instructions below (within) the subroutine being called.  You can
+       break the program execution by pressing the ESC key.  Once the
+
+
+       ESC key is pressed the source line being executed will be
+       displayed with the cursor on it.
+
+       You can also specify an output radix for each register, port and
+       memory location.  To specify a radix other than its default
+       perform the following steps:
+
+       1.  Highlight the entry who's radix is to be changed.  Notice the
+           additional command F9-Radix displayed when the cursor is in
+           the register, port or memory windows.
+
+       2.  Press the F9 function key, this will open a window prompting
+           you for the desired radix.
+
+       3.  Select the radix Decimal, Hexidecimal, ASCII or Binary.
+
+       Once you have changed the display radix for any of the entries
+       they can be saved as the default.  To save the new radix for each
+       entry select Save configuration from the main Options menu.
+
+
+       EProgramF
+
+       This menu option will only work with the 8748 programmer designed
+       specifically for this application.  It will not control other
+       8748 programmers.  If you have a programmer other than one
+       supplied by me, use the Burn command from within the Files menu
+       to access it.  Currently only a few 8748 programmers exist which
+       can be controlled by this program.  Since the demand for the
+       programmers has not been as great as we had wished, their cost is
+       comparably high.  You will most likely be able to obtain an 8748
+       programmer for less than what it cost me to build one.  But if
+       you already have one, then the following pages apply to you.
+
+       This menu allows you to control the 8748 programmer connected to
+       your printer port.  Before using the programmer you must inform
+       the software which printer port the programmer is attached to.
+       To do this refer to the section EProgrammer portF in the Options
+       section of this manual.
+
+
+          EProgramming an 8748/49F
+
+       The Program command within the Program menu will program an
+       8748/49 in the programmers ZIF socket with the code generated
+       from the currently loaded source file.  To program an 8748/49
+       perform the following steps:
+
+
+       1.  If the source code to program the 8748/49 with is not in the
+           editor then load it via the EFile/LoadF command.
+
+       2.  Select EProgram Ffrom the main menu.  The Program menu will be
+           displayed.
+
+       3.  Select EProgram Ffrom the Program menu.
+
+       4.  If the source code has already been assembled then proceed to
+           the next step.  If the source file has not been assembled or
+           has been modified since the last assembly it will be
+           assembled automatically.  If errors are encountered you will
+           be positioned into the editor with the cursor on the line
+           containing the first error.  Fix the problem and repeat
+           starting at step 2, otherwise continue to the next step.
+
+       5.  You will be prompted to insert the 8748/49 into the
+           programmers ZIF socket.  Insert the 8748/49 into the
+           programmer and press any key.
+
+       6.  The programmer will then check for an ALE signal from the
+           chip to be programmed. If the ALE signal is not present then
+           an error will be displayed and the program operation will be
+           aborted.  An absent ALE signal can be due to a miss socketed
+           or a damaged chip.
+
+       7.  If the ALE signal is present the programmer will start
+           programming the chip.  As each byte is programmed it is also
+           verified by reading it back from the programmed chip.  If the
+           byte has been programmed properly then the next byte will be
+           programmed.  If the byte read back is not the same as the
+           byte programmed then an error will be displayed indicating
+           the address where the program process failed.  This will
+           continue until all the bytes of the assembled source code
+           have been programmed into the chip.
+
+       CAUTION: Once programming has begun do not remove the 8748/49
+       from the socket.  If you want to abort the programming of the
+       chip press the ESC key.  You can then remove the chip.  Also do
+       not turn the programmer ON or OFF while an 8748/49 is in the
+       socket.  Doing so may damage the chip.
+
+
+          EBlank checkF
+
+       The Blank check command will verify that the 8748/49 in the
+       programmers socket has been completely erased.  This is
+       accomplished by reading each byte within the chips EPROM and
+       comparing it to zero.  To blank check and 8748/49 perform the
+       following steps:
+
+       1.  Select EProgramF  from the main menu.  The Program menu will be
+           displayed.
+
+       2.  Select EBlank check Ffrom the program menu.  You will be
+           prompted to insert the 8748/49 into the programmers ZIF
+           socket.
+
+       3.  Insert the chip to be blank checked into the programmers ZIF
+           socket and press any key.  The chip will then be blank
+           checked.  If any memory locations are not blank then the
+           address of the first none blank location will be displayed
+           and the blank check process will be aborted.  If the chip is
+           blank then an error will not be displayed.
+
+       CAUTION: Once the blank check has begun do not remove the 8748/49
+       from the socket.  If you want to abort the blank check press the
+       ESC key.  You can then remove the chip.  Also do not turn the
+       programmer ON or OFF while an 8748/49 is in the socket. Doing so
+       may damage the chip.
+
+
+          EVerifyF
+
+       The Verify command will compare the contents of the chip in the
+       programmer to the contents of the code buffer (which contains the
+       currently assembled source code).  To verify that a chip contains
+       the same code as what is currently in the code buffer perform the
+       following steps:
+
+       1.  Select EProgramF  from the main menu.  The Program menu will be
+           displayed.
+
+       2.  Select EVerifyF from the program menu.  You will be prompted to
+           insert the 8748/49 into the programmers ZIF socket.
+
+       3.  Insert the chip to be verified into the programmers ZIF
+           socket and press any key.  The chip will then be verified
+           against the current contents of the code buffer.  If any
+           memory locations are not the same then the address of the
+
+
+           first error will be displayed and the verify process will be
+           aborted.  If the chip contains the same code as what is in
+           the code buffer then an error will not be displayed.
+
+       CAUTION: Once the verify process has begun do not remove the
+       8748/49 from the socket.  If you want to abort the verify process
+       press the ESC key.  You can then remove the chip.  Also do not
+       turn the programmer ON or OFF while an 8748/49 is in the socket.
+       Doing so may damage the chip.
+
+       Each value programmed into the 8748/49 is verified as it is
+       burned.  If no errors are reported during the program sequence
+       then the chip has been programmed properly.  For this reason a
+       separate verify pass is not normally necessary.
+
+
+          ERead chipF
+
+       Selecting Read chip from the Program menu loads the values
+       programmed into the 8748/49 into the code buffer.  This code
+       buffer is written to a file called READ.HEX in Intel Hex format.
+       To read the contents of an 8748/49 perform the following steps:
+
+       1.  Select EProgramF  from the main menu.  The Program menu will be
+           displayed.
+
+       2.  Select ERead chipF from the program menu.  You will be prompted
+           to insert the 8748/49 into the programmers ZIF socket.
+
+       3.  Insert the chip to be read into the programmers ZIF socket
+           and press any key.  The contents of the chip will then be
+           read and written to the READ.HEX file.  
+
+       CAUTION: Once the read process has begun do not remove the
+       8748/49 from the socket.  If you want to abort the read process
+       press the ESC key.  You can then remove the chip.  Also do not
+       turn the programmer ON or OFF while an 8748/49 is in the socket.
+       Doing so may damage the chip.
+
+
+       EOptionsF
+
+       The  options menu allows you to specify your system
+       configuration.  These options include: printer port,  monitor
+       type, which files are to be generated at assembly time,  editor
+       tab width, default simulator output radix,  home (8048 program)
+       directory, the target MPU type (8048, 8049 or 8050), the printer
+
+
+       port the programmer is connected too, and allows you to save the
+       new configuration as the default.
+
+
+          EPrinter portF
+
+       Before you can use the Print command you must specify which
+       printer port to use when printing.  To select a printer port
+       perform the following steps:
+
+       1.  Select EPrinter portF from the main Options menu.
+
+       2.  Select 1, 2 or 3 for LPT1, LPT2 or LPT3 respectively.
+
+
+          EMonitor typeF
+
+       If you are using a monochrome monitor you will need to inform the
+       program to display the screens for a monochrome monitor.  To set
+       the screens for a monochrome monitor perform the following steps:
+
+       1.  Select EMonitorF from the main Options menu.
+
+       2.  Select the monitor type EMonochromeF or EColorF.
+
+
+          EFile generationF
+
+       You can have various files generated during assembly of your
+       source code.  These files do not need to be generated to simulate
+       the source code.  Generating each of these files will slow down
+       the assembly process.  Each of the selections from the EFileF
+       EgenerationF menu are:
+
+       EGenerate list fileF: setting this option to YES will cause the
+       assembler to generate a listing file of your source code.  The
+       list file contains line number, address, hex code and source code
+       for each line of your source.  The list file will have the same
+       file name as the file loaded into the buffer with an .LST
+       extension
+
+       EGenerate symbol fileF: setting this option to YES will cause the
+       assembler to generate a file containing the names and values of
+       the symbols and labels contained in your source code.  This file
+       will have the same name as your source code with an .SYM
+       extension.
+
+
+       EGenerate instruction countF: setting this option to YES will cause
+       the assembler to generate a file containing a list of 8048
+       instructions and the number of times each one was used in your
+       source code.
+
+       EGenerate hex fileF: setting this option to YES will cause the
+       assembler to generate a file containing the assembled values of
+       your source code.  This file is written in Intel hex format.
+
+
+          ETab widthF
+
+       You can specify the tab width used in the editor by selecting ETabF
+       EwidthF from the main Options menu.  Then enter the number of
+       spaces.  The editor does not insert tab characters into the text
+       buffer but inserts an appropriate number of blanks to fill to the
+       next tab stop.
+
+
+          ESimulator output radixF
+
+       You can have the simulator display values in decimal, hexadecimal
+       or ASCII.  To select the output radix perform the following
+       steps:
+
+       1.  Select ESet output radixF from the main Options menu.
+
+       2.  Select the output radix Decimal, Hexadecimal or ASCII.
+
+
+          EChip typeF
+
+       Setting the chip type allows you to specify the target CPU type.
+       This is useful if the size of your program becomes greater than
+       the memory available in the target processor.  i.e. the 8748 only
+       has 1024 bytes of program memory, if the ending address of your
+       program is greater than 1023 then it will not fit in the 8748.
+       Select the target chip type by performing the following steps:
+
+       1.  Select EChip typeF from the main Options menu.
+
+       2.  Select the target CPU 8748, 8749 or 8050.  Selecting 8050
+           will require that your code be programmed into an external
+           ROM and configured as required.  This program can only
+           program the 8748 and 8749.
+
+
+          EProgrammer portF
+
+       Before you can use the Programmer you must specify which printer
+       port it is connected to.  To select a printer port perform the
+       following steps:
+
+       1.  Select EProgrammer portF from the main Options menu.
+
+       2.  Select 1, 2 or 3 for LPT1, LPT2 or LPT3 respectively.
+
+
+          ESave configurationF
+
+       You can save any of the changes you make in the EOptionsF menu as
+       defaults.  To do this select ESave configurationF from the main
+       Options menu.  This configuration file will be saved in the
+       current directory.  When this program is started the
+       configuration file within the current directory will be loaded.
+       This will allow you to have a different configuration for each
+       project you are working on.
+
+
+       EAppendix A - 8048 source formatF
+
+       The assembler mnemonics, labels and symbols are not case
+       sensitive.  i.e. LOOP is the same as loop.  Each line of the
+       source code is segmented into the following parts:
+
+       ELABELF: Each line of source can contain an optional label.  Labels
+       may contain letters, digits and an under score (_) character.
+       The label must start with a alphabetic character and terminate
+       with a colon ":".  Labels can be a maximum of eight characters
+       long.  The first time a label is encountered its name along with
+       the current value of the program counter is added to the label
+       table.  When the label is used as an operand the value of the
+       program counter associated with that label is substituted.
+
+
+       EOPCODEF: Opcodes can be either a 8048 mnemonic or an assembler
+       directive.  A list of mnemonics and their operands are given in
+       appendix A.  Appendix C contains a list of assembler directives.
+       Opcodes must be separated from labels and operands by at least
+       one blank.
+
+       EOPERANDF: Operands are added after a mnemonic or directive to
+       indicate what the operation is to be performed on.
+
+
+       i.e. in the instruction:           MOV    R1,#10
+
+
+       the operands are R1 and #10.  Multiple operands must be separated
+       by a comma, as in the example just given.
+
+       ECOMMENTF: Comments begin with a semicolon and instruct the
+       assemble to ignore all text from the semicolon to the end of the
+       line.
+
+       ESYMBOLF: A symbol is a character string which represents a
+       specific value.  i.e. the source line
+
+                                 CR    EQU    13
+
+       instructs the assembler to equate the value 13 with the character
+       sequence CR.  Symbols must conform to the same requirements as
+       labels (but they are terminated with a blank instead of a colon).
+
+       EEQUATIONSF: The assembler has a built in equation evaluator.
+       Opcodes requiring an immediate value or directives requiring a
+       value can be constructed into an equation.  i.e. in the following
+       source line
+                                 MOV    A,#8*4
+
+       8 * 4 is the equation which will be evaluated.  Equations can be
+       comprised of numbers, labels, symbols, operators and
+       parenthesized sub-equation.
+
+       Numbers must start with a digit between 0 and 9.  Binary,
+       hexadecimal and decimal numbers can be specified by terminating
+       with a B, H or D respectively.  If the radix is not specified
+       then decimal is assumed.  i.e. 11110011b, 0F3h, 243d and 243 all
+       represent the same value.  Values for ASCII characters can be
+       specified by surrounding the character with single quotes, i.e.
+       'a' will cause the ASCII value for the character to be
+       substituted.
+
+
+       Labels and symbols can be used if previously defined or equated
+       to a value.  Labels and symbols not defined in the prior to their
+       use can be used in expressions if their value is not required on
+       the first assembler pass.  i.e. in the source lines
+
+                                 DB   'hello',CR,LF
+                                 CR   EQU  13
+                                 LF   EQU  10
+
+       the value of CR and LF are not needed on the first pass, their
+       values can be substituted on the second pass.  The only exception
+       is the DS (Define Space) directive. An example of this is
+
+                                 DS   BUFSIZE
+                       BUFSIZE   EQU  20
+
+       on the first pass the assembler must know how many bytes to
+       allocate for the DS (Define Space) directive in order for it to
+       continue determining address values for subsequent labels.  For
+       this reason labels and symbols used in the DS directive must be
+       defined prior to their use.
+
+       The available operators are listed below in order of president
+
+          () parenthesized sub-equations
+          ^ exponential
+          * multiplication
+          / division
+          % modular
+          + addition
+          - subtraction
+          +, - unary operations
+
+
+       EAppendix B - Assembler DirectivesF
+
+       The following is a list of directives supported by the 8048
+       Assembler:
+
+       EORGF: Originate.  Resets the program counter (at assembly time) to
+       a specific value.  i.e. the source line
+
+
+                                 ORG   7
+
+
+       resets the program counter to the value 7.
+
+       EEQUF: Equates a value with a character string (Symbol).  i.e. the
+       source line
+
+                            LF    EQU   10
+
+       adds the symbol LF to the symbol table with the value 10.  Each
+       time LF is used as an operand the value 10 will be substituted.
+       A symbol can be equated only once in the same source file.
+
+       ESETF: Like EQU, SET sets a symbol to a specific value.  A symbols
+       value can be modified at more than one location in the source
+       file by the SET command.
+
+       EDBF: Define byte.  This directive places a value or string of
+       values at the current program counter location (one per memory
+       location).  i.e.
+
+                            NUM: DB   10
+                            MSG: DB   'HELLO WORLD',13,10
+
+       are legal usage's of the DB directive.  Each value (or values)
+       will occupy one memory location.
+
+       EDWF: Define word.  This directive places a value or string of
+       values at the current program counter location one per 2 bytes of
+       memory.  i.e.
+
+                            NUM: DW   10
+                            MSG: DW   'HELLO WORLD',13,10
+
+       are legal usage's of the DW directive.  Each value (or values)
+       will occupy two memory locations (in LS MS order).
+
+
+       EDSF: Define space.  This directive will allocated a specified
+       number of memory locations starting at the current program
+       counter location.  i.e.
+
+                            BUF: DS   10
+
+       will allocate 10 bytes of memory starting at the location
+       associated with BUF.
+
+       EPAGE rowsF: where rows is optional.  If omitted the listing file
+       is advanced to the top of the next page.  If specified this value
+       indicates the number of lines per page in the listing file (e.g.
+       PAGE 66).  The default lines per page is 66.
+
+       E%TITLE "title string": Fthis directive allows you to specify the
+       title to be displayed in the listing file.  You can change the
+       title as often as you like.  But since the title is displayed at
+       the top of the first page the last defined title in your source
+       file will be displayed.  This is due to the fact that the title
+       is displayed before any lines of the source file are processed
+       for the second assembly pass.  They have all been processed for
+       the first pass.  The quotes around the title string are required.
+       Every character after the first quotation mark to the character
+       just before the next quotation mark will be included in the
+       title.
+
+       E%SUBTTL "subtitle string": Fthis directive allows you to specify
+       the subtitle to be displayed in the listing file.  This subtitle
+       is displayed starting will the second page and can be changed as
+       often as you like.  The last declared subtitle will be displayed
+       in the title block of each page (except the first page).
+
+       E%TOPMAR val: Fallows you to specify the number of lines in the top
+       margin.  This value must be greater than 4 and must be less than
+       the page length minus the bottom margin (defined below).
+
+       E%BOTMAR val: Fallows you to specify the number of lines in the
+       bottom margin.  This value must be greater than 0 and must be
+       less than the page length minus the top margin (defined above).
+
+       EENDF: Instructs the assembler to stop assembling the source file
+       (ignore any text which follows the END directive).  The END
+       directive is not required, the assembler will stop assembling
+
+
+       either when it reaches an END directive or the end of the text
+       buffer.
+
+
+       EAppendix C - 8048 Instruction SetF
+
+                             EInstruction Set SummaryF
+
+            EMnemonicF       EDescriptionF                   E Bytes  CyclesF
+
+       EAccumulatorF
+         ADD A,R           Add register to A                  1    1
+         ADD A,@R          Add data memory to A               1    1
+         ADD A,#data       Add immediate to A                 2    2
+         ADDC A,R          Add register with carry            1    1
+         ADDC A,@R         Add data memory with carry         1    1
+         ADDC A,#data      Add data memory with carry         2    2
+         ANL A,R           And register to A                  1    1
+         ANL A,@R          And data memory to A               1    1
+         ANL A,#data       And immediate to A                 2    2
+         ORL A,R `         Or register to A                   1    1
+         ORL A,@R          Or data memory to A                1    1
+         ORL A,#data       Or immediate to A                  2    2
+         XRL A,R           XOR register to A                  1    1
+         XRL A,@R          XOR data memory to A               1    1
+         XRL A,#data       XOR immediate to A                 2    2
+         INC A             Increment A                        1    1
+         DEC A             Decrement A                        1    1
+         CLR A             Clear A                            1    1
+         CPL A             Complement A                       1    1
+         DA A              Decimal adjust A                   1    1
+         SWAP A            Swap nibbles of A                  1    1
+         RL A              Rotate A left                      1    1
+         RLC A             Rotate A left through carry        1    1
+         RR A              Rotate A right                     1    1
+         RRC A             Rotate A right through carry       1    1
+
+
+       EInput/OutputF
+         IN A,P            Input port to A                    1    2
+         OUTL P,A          Output A to port                   1    2
+         ANL P,#data       And immediate to port              2    2
+         ORL P,#data       Or immediate to port               2    2
+         INS A,BUS         Input BUS to A                     1    2
+         OUTL BUS,A        Output A to BUS                    1    2
+         ANL BUS,#data     And immediate to BUS               2    2
+         ORL BUS,#data     Or immediate to BUS                2    2
+         MOVD A,P          Input Expander port to BUS         1    2
+         MOVD P,A          Output A to Expander port          1    2
+         ANLD P,A          And A to Expander port             1    2
+         ORLD P,A          Or A to Expander port              1    2
+
+       ERegistersF
+         INC R             Increment register                 1    1
+         INC @R            Increment data memory              1    1
+         DEC R             Decrement register                 1    1
+
+       EBranchF
+         JMP addr          Jump unconditional                 2    2
+         JMPP @A           Jump indirect                      1    2
+         DJNZ R,addr       Decrement register and jump        2    2
+         JC addr           Jump on carry = 1                  2    2
+         JNC addr          Jump on carry = 0                  2    2
+         JZ addr           Jump on A Zero                     2    2
+         JNZ addr          Jump on A not Zero                 2    2
+         JT0 addr          Jump on T0 = 1                     2    2
+         JNT0 addr         Jump on T0 = 0                     2    2
+         JT1 addr          Jump on T1 = 1                     2    2
+         JNT1 addr         Jump on T1 = 0                     2    2
+         JF0 addr          Jump on F0 = 1                     2    2
+         JF1 addr          Jump on F1 = 1                     2    2
+         JTF addr          Jump on timer flag = 1             2    2
+         JNI addr          Jump on INT = 0                    2    2
+         JBb addr          Jump on Accumulator Bit            2    2
+
+       ESubroutineF
+         CALL addr         Jump to subroutine                 2    2
+         RET               Return                             1    2
+         RETR              Return and restore status          1    2
+
+
+       EFlagsF
+         CLR C             Clear Carry                        1    1
+         CPL C             Complement Carry                   1    1
+         CLR F0            Clear Flag 0                       1    1
+         CPL F0            Complement Flag 0                  1    1
+         CLR F1            Clear Flag 1                       1    1
+         CPL F1            Complement Flag 1                  1    1
+
+       EData MovesF
+         MOV A,R           Move register to A                 1    1
+         MOV A,@R          Move data memory to A              1    1
+         MOV A,#data       Move immediate to A                2    2
+         MOV R,A           Move A to register                 1    1
+         MOV @R,A          Move A to data memory              1    1
+         MOV R,#data       Move immediate to register         2    2
+         MOV @R,#data      Move immediate to data memory      1    1
+         MOV A,PSW         Move PSW to A                      1    1
+         MOV PSW,A         Move A to PSW                      1    1
+         XCH A,R           Exchange A and register            1    1
+         XCH A,@R          Exchange A and data memory         1    1
+         XCHD A,@R         Exchange nibble of A and mem       1    1
+         MOVX A,@R         Move external data memory to A     1    2
+         MOVX @R,A         Move A to external data memory     1    2
+         MOVP A,@A         Move to A from current page        1    2
+         MOVP3 A,@A        Move to A from Page 3              1    2
+
+       ETimer/CounterF
+         MOV A,T           Read Timer/Counter                 1    1
+         MOV T,A           Load Timer/Counter                 1    1
+         STRT T            Start Timer                        1    1
+         STRT CNT          Start Counter                      1    1
+         STOP TCNT         Stop Timer/Counter                 1    1
+         EN TCNTI          Enable Timer/Counter Interrupt     1    1
+         DIS TCNTI         Disable Timer Counter Int.         1    1
+
+       EControlF
+         EN I              Enable external Interrupt          1    1
+         DIS I             Disable external Interrupt         1    1
+         SEL RB0           Select register bank 0             1    1
+         SEL RB1           Select register bank 1             1    1
+         SEL MB0           Select memory bank 0               1    1
+         SEL MB1           Select memory bank 1               1    1
+         ENT0 CLK          Enable clock output on T0          1    1
+
+
+         NOP               No Operation                       1    1
+
+
+          ESymbols and Abbreviations UsedF
+
+       A         Accumulator
+       AC        Auxiliary Carry
+       addr      12-Bit Program Memory Address
+       Bb        Bit Designator (b = 0 - 7)
+       BS        Bank Switch
+       BUS       BUS Port
+       C         Carry
+       CLK       Clock
+       CNT       Event Counter
+       CRR       Conversion Result Register
+       D         Mnemonic for 4-Bit Digit (Nibble)
+       data      8-Bit Number or Expression
+       DBF       Memory Bank Flip-Flop
+       F0, F1    Flag 0, Flag 1
+       I         Interrupt
+       P         Mnemonic for "in-page" Operation
+       PC        Program Counter
+       Pp        Port Designator (p = 1, 2 or 4 - 7)
+       PSW       Program Status Word
+       Ri        Data memory Pointer (i = 0, or 1)
+       Rr        Register Designator (r = 0 - 7)
+       SP        Stack Pointer
+       T         Timer
+       TF        Timer Flag
+       T0, T1    Test 0, Test 1
+       X         Mnemonic for External RAM
+       #         Immediate Data Prefix
+       @         Indirect Address Prefix
+       $         Current Value of Program Counter
+       (X)       Contents of X
+       ((X))     Contents of Location Addressed by X
+       <-        Is Replaced by
+
+
+       0-5**     0-5 in 8048AH/8748H
+                  0-6 in 8049AH/8749H
+                  0-7 in 8050AH
+
+
+          EInstruction Set DefinitionsF
+
+       ADD  A,Rr
+         Add Register Contents to Accumulator
+         (A) <- (A) +(Rr)
+
+       ADD  A,@Ri
+         Add Data Memory Contents to Accumulator
+         (A) <- (A) + ((Ri))
+
+       ADD  A,#data
+         Add Immediate Data to Accumulator
+         (A) <- (A) + data
+
+       ADDC A,Rr
+         Add Carry and Register Contents to Accumulator
+         (A) <- (A) + (Rr) + (C)
+
+       ADDC A,@Ri
+         Add Carry and Data Memory Contents to Accumulator
+         (A) <- (A) + ((Ri)) + (C)
+
+       ADDC A,#data
+         Add Carry and Immediate Data to Accumulator
+         (A) <- (A) + data = (C)
+
+       ANL A,Rr
+         Logical AND Accumulator with Register Mask
+         (A) <- (A) AND (Rr)
+
+       ANL  A,@Ri
+         Logical AND Accumulator with memory Mask
+         (A) <- (A) AND ((Ri))
+
+       ANL  A,#data
+         Logical AND Accumulator with Immediate Mask
+         (A) <- (A) AND data
+
+       ANL  BUS,#data
+         Logical AND BUS with Immediate Mask
+         (BUS) <- (BUS) AND data
+
+       ANL  Pp,#data
+         Logical AND Port 1-2 with Immediate Mask
+         (Pp) <- (Pp) AND data
+
+
+       ANLD Pp,A
+         Logical AND Port 4-7 with Accumulator Mask
+         (Pp) <- (Pp) AND (A0-3)
+
+       CALL address
+         Subroutine Call
+         ((SP)) <- (PC), (PSW4-7)
+         (SP) <- (SP) + 1
+         (PC8-10) <- (addr8-10)
+         (PC0-7) <- (addr0-7)
+         (PC11) <- DBF
+
+       CLR  A
+         Clear Accumulator
+         (A) <- 0
+
+       CLR C
+         Clear Carry Bit
+         (C) <- 0
+
+       CLR F1
+         Clear Flag 1
+         (F1) <- 0
+
+       CLR F0
+         Clear Flag 0
+         (F0) <- 0
+
+       CPL A
+         Complement Accumulator
+         (A) <- NOT(A)
+
+       CPL C
+         Complement Carry Bit
+         (C) <- NOT(C)
+
+       CPL F0
+         Complement Flag 0
+         (F0) <- NOT(F0)
+
+       CPL F1
+         Complement Flag 1
+         (F1) <- NOT(F1)
+
+       DA A
+         Decimal Adjust Accumulator
+
+
+       DEC A
+         Decrement Accumulator
+         (A) <- (A) - 1
+
+       DEC Rr
+         Decrement Register
+         (Rr) <- (Rr) - 1
+
+       DIS I
+         Disable External Interrupt
+
+       DIS TCNTI
+         Disable Timer/Counter Interrupt
+
+       DJNZ Rr,address
+         Decrement Register and Test
+         (Rr) <- (Rr) - 1
+         If (Rr) not 0
+           (PC0-7) <- address
+
+       EN I
+         Enable External Interrupt
+
+       EN TCNTI
+         Enable Timer/Counter Interrupt
+
+       ENT0 CLK
+         Enable Clock Output
+
+       IN A,Pp
+         Input Port or Data to Accumulator
+         (A) <- (Pp)
+
+       INC A
+         Increment Accumulator
+         (A) <- (A) + 1
+
+       INC Rr
+         Increment Register
+         (Rr) <- (Rr) + 1
+
+       INC @Ri
+         Increment Data Memory Location
+         ((Ri)) <- ((Ri)) + 1
+
+       INS A,BUS
+         Strobed Input of BUS Data to Accumulator
+         (A) <- (BUS)
+
+
+       JBb address
+         Jump If Accumulator Bit is Set
+         If Bb = 1
+           (PC0-7) <- address
+         If Bb = 0
+           (PC)=(PC)+2
+
+       JC address
+         Jump If Carry Is Set
+         If C = 1
+           (PC0-7) <- address
+         If C = 0
+           (PC) = (PC) + 2
+
+       JF0 address
+         Jump If Flag 0 Is Set
+         If F0 = 1
+           (PC0-7) <- address
+         If F0 = 0
+           (PC) = (PC) + 2
+
+       JF1 address
+         Jump If Flag 1 Is Set
+         If F1 = 1
+           (PC0-7) <- address
+         If F1 = 0
+           (PC) = (PC) + 2
+
+       JMP address
+         Direct Jump within 2K Block
+         (PC8-10) <- address 8-10
+         (PC0-7) <- address 0-7
+         (PC11) <- DBF
+
+       JMPP @A
+         Indirect Jump within Page
+         (PC0-7) <- ((A))
+
+       JNC address
+         Jump If Carry Is Not Set
+         If C = 0
+           (PC0-7) <- address
+         If C = 1
+           (PC) = (PC) + 2
+
+
+       JNI address
+         Jump If Interrupt Input Is Low
+         If I = 0
+           (PC0-7) <- address
+         If I = 1
+           (PC) = (PC) + 2
+
+       JNT0 address
+         Jump If Test 0 Is Low
+         If T0 = 0
+           (PC0-7) <- address
+         If T0 = 1
+           (PC) = (PC) + 2
+
+       JNT1 address
+         Jump If Test 1 Is Low
+         If T1 = 0
+           (PC0-7) <- address
+         If T1 = 1
+           (PC) = (PC) + 2
+
+       JNZ address
+         Jump If Accumulator Is Not Zero
+         If A <> 0
+           (PC0-7) <- address
+         If A = 0
+           (PC) = (PC) + 2
+
+       JTF address
+         Jump If Timer Flag Is Set
+         If TF = 1
+           (PC0-7) <- address
+         If TF = 0
+           (PC) = (PC) + 2
+
+       JT0 address
+         Jump If Test 0 Is High
+         If T0 = 1
+           (PC0-7) <- address
+         If T0 = 0
+           (PC) = (PC) + 2
+
+
+       JT1 address
+         Jump If Test 1 Is High
+         If T1 = 1
+           (PC0-7) <- address
+         If T1 = 0
+           (PC) = (PC) + 2
+
+       JZ address
+         Jump If Accumulator Is Zero
+         If A = 0
+           (PC0-7) <- address
+         If A <> 0
+           (PC) = (PC) + 2
+
+       MOV A,#data
+         Move Immediate Data to Accumulator
+         (A) <- data
+
+       MOV A,PSW
+         Move PSW Contents to Accumulator
+         (A) <- (PSW)
+
+       MOV A,Rr
+         Move Register Contents to Accumulator
+         (A) <- (Rr)
+
+       MOV A,@Ri
+         Move Data Memory Contents to Accumulator
+         (A) <- ((Ri))     ; i = 0-1
+
+       MOV A,T
+         Move Timer/Counter Contents to Accumulator
+         (A) <- (T)
+
+       MOV PSW,A
+         Move Accumulator Contents to PSW
+
+       MOV Rr,A
+         Move Accumulator Contents to Register
+         (Rr) <- (A)
+
+       MOV Rr,#data
+         Move Immediate Data to Register
+         (Rr) <- data
+
+
+       MOV @Ri,A
+         Move Accumulator Contents to Data Memory
+         ((Ri)) <- (A)
+
+       MOV @Ri,#data
+         Move Immediate Data to Data Memory
+         ((Ri)) <- data
+
+       MOV T,A
+         Move Accumulator Contents to Timer/Counter
+         (T) <- (A)
+
+       MOVD A,Pp
+         Move Port 4-7 Data to Accumulator
+         (A0-3) <- (Pp)
+         (A4-7) <- 0
+
+       MOVD Pp,A
+         Move Accumulator Data to Port 4-7
+         (Pp) <- (A0-3)
+
+       MOVP A,@A
+         Move Current Page Data to Accumulator
+         (A) <- ((PC8-11+A))
+
+       MOVP3 A,@A
+         Move Page 3 Data to Accumulator
+         (A) <- ((300h+A))
+
+       MOVX A,@Ri
+         Move External-Data-Memory Contents to Accumulator
+         (A) <- ((Ri))
+
+       MOVX @Ri,A
+         Move Accumulator Contents to External-Data-Memory
+         ((Ri)) <- (A)
+
+       NOP
+         The NOP Instruction (No Operation)
+
+       ORL A,Rr
+         Logical OR Accumulator With Register Mask
+         (A) <- (A) OR (Rr)
+
+       ORL A,@Ri
+         Logical OR Accumulator With Memory Mask
+         (A) <- (A) OR ((Ri))
+
+
+       ORL A,#data
+         Logical OR Accumulator With Immediate Mask
+         (A) <- (A) OR data
+
+       ORL BUS,#data
+         Logical OR BUS With Immediate Mask
+         (BUS) <- (BUS) OR data
+
+       ORL Pp,#data
+         Logical OR Port 1 or 2 With Immediate Mask
+         (Pp) <- (Pp) OR data
+
+       ORLD Pp,A
+         Logical OR Port 4-7 With Accumulator Mask
+         (Pp) <- (Pp) OR (A0-3)
+
+       OUTL BUS,A
+         Output Accumulator Data to BUS
+         (BUS) <- (A)
+
+       OUTL Pp,A
+         Output Accumulator Data to Port 1 or 2
+         (Pp) <- (A)
+
+       RET
+         Return Without PSW Restore
+         (SP) <- (SP)-1
+         (PC) <- ((SP))
+
+       RETR
+         Return With PSW Restore
+         (SP) <- (SP) - 1
+         (PC) <- ((SP))
+         (PSW4-7) <- ((SP))
+
+       RL A
+         Rotate Left Without Carry
+         (An+1) <- (An)
+         (A0) <- (A7)
+
+       RLC A
+         Rotate Left Through Carry
+         (An+1) <- (An)    n=0-6
+         (A0) <- (C)
+         (C) <- (A7)
+
+
+       RR A
+         Rotate Right Without Carry
+         (An) <- (An+1)
+         (A7) <- (A0)
+
+       RRC A
+         Rotate Right Through Carry
+         (An) <- (An+1)
+         (A7) <- (C)
+         (C) <- (A0)
+
+       SEL MB0
+         Select Memory Bank 0
+         (DBF) <- 0
+
+       SEL MB1
+         Select Memory Bank 1
+         (DBF) <- 1
+
+       SEL RB0
+         Select Register Bank 0
+         (BS) <- 0
+
+       SEL RB1
+         Select Register Bank 1
+         (BS) <- 1
+
+       STOP TCNT
+         Stop Timer/Event-Counter
+
+       STRT CNT
+         Start Event-Counter
+
+       STRT T
+         Start Timer
+
+       SWAP A
+         Swap Nibbles Within Accumulator
+         (A4-7) <-> (A0-3)
+
+       XCH A,Rr
+         Exchange Accumulator-Register Contents
+         (A) <-> (Rr)
+
+       XCH A,@Ri
+         Exchange Accumulator and Data Memory Contents
+         (A) <-> ((Ri))
+
+
+       XCHD A,@Ri
+         Exchange Accumulator and Data Memory 4-Bit Data
+         (A0-3) <-> ((Ri0-3))
+
+       XRL A,Rr
+         Logical XOR Accumulator With Register Mask
+         (A) <- (A) XOR (Rr)
+
+       XRL A,@Ri
+         Logical XOR Accumulator With Memory Mask
+         (A) <- (A) XOR ((Ri))
+
+       XRL A,#data
+         Logical XOR Accumulator With Immediate Mask
+         (A) <- (A) XOR data
+

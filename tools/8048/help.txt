@@ -1,0 +1,333 @@
+
+  This is the main File menu.  The following commands
+  are available:
+   Load - load a file from disk into the text buffer.
+   Save - save the contents of the text buffer to a file
+     under the current file name.
+   Save as - save the text buffer under a new name.
+   XMem file - loads a hex file into an internal memory
+     buffer.
+   Print - print the text in the buffer.  The printer
+     port selected in options is used for printing.
+   Burn - executes a DOS command: BURN filename.
+   Info - displays info on the editors current status.
+   DOS shell - exit to a DOS shell.
+   Quit - Quit the program.
+
+
+  A list of files matching the specified (or default)
+  filespec have been displayed.  Select the desired
+  file by highlighting it and pressing the ENTER key.
+
+
+  Select which type of monitor is connected to this
+  computer (COLOR or MONOCHROME).
+
+
+  Select which parallel port your printer is connected
+  to (LPT1, LPT2 or LPT3).  If you to not have a printer
+  connected to your system the set the printer port to
+  OFF.
+
+
+  This menu allows you to specify which files are to be
+  generated during the assembly process.  Setting an
+  entry to YES will cause that file to be generated.
+  Each of the file types are:
+    Generate list file - listing file containing line
+       number, hex program codes and source lines.
+    Generate symbol file - file containing a list of
+       symbols used in a source file and their
+       corresponding values.
+    Generate instruction count - list of each instruction
+       used and how many times it was used in the source
+       file.
+    Generate hex file - this file contains the assembled
+       code which is generated from the source file.
+       This file is in Intel hex format.
+
+  This is the main Options menu, this menu allows you
+  to specify various system level settings.  These
+  settings include:
+
+    Printer port - defines which printer port to use
+      when printing source code.
+
+    Monitor - defines the type of monitor connected to
+      your computer.  Some things will not show up
+      on a monochrome monitor if this is set to Color.
+
+    File generation - defines which files are to be
+      created during assembly.  Each file being generated
+      creates more overhead and slows down the assembly
+      process.
+
+    Tab width - defines where tab stops are to be placed.
+      Pressing the TAB key inserts spaces and not the tab
+      character.
+
+    Set output radix - defines the default radix to be
+      used by the simulator when displaying numbers.
+
+    Home directory - defines the directory where the
+      8048.EXE program resides.  This allows the program
+      to locate the help files if you are not in its
+      home directory.
+
+    Chip type - specifies which target CPU is to be used.
+      This allows the assembler to inform you if your
+      code becomes larger than the target CPU.  It also
+      specifies to the programmer which chip is being
+      programmed.
+
+    Programmer port - specifies which printer port the
+      programmer is attached to (LPT1, LPT2 or LPT3).
+
+    Save configuration - allows you to save the current
+      settings which you have defined.  This  config-
+      uration file is saved in the current directory,
+      this allows you to have different configurations
+      for each project. This is the 8048 Assembler/Simulator main menu.  The
+ available commands are:
+   File: Load, Save, Save as, XMem file, Print,
+     DOS shell, Burn, Info and quit.
+   Edit: allows you to edit a previously loaded text file
+     or create a new one.
+   Assemble: assembles the text currently in the editors
+     text buffer.
+   Simulator: allows you to step through your program
+    viewing the registers, flags, ports and memory.
+   Program; allows you to program, blank check, verify
+     and read the contents of an 8748/49 in the
+     programmer.
+   Options: allows you to specify assembly file
+    generation, monitor type, printer port and simulator
+    radix.
+
+  This is the simulation screen, displayed on this screen
+  is your source code, flags, registers, RAM memory and
+  ports.
+
+
+  You can move from window to window by pressing the 
+  <TAB> and <SHIFT><TAB> keys.  You can scroll through
+  each window using the up arrow, down arrow, page up,
+  page down, home and end keys.
+
+
+  Once in the flag, register, memory or port window
+  each entry can be modified by highlighting it and
+  pressing the ENTER key.  Then enter the new value.
+
+
+
+  You can also modify flags, registers, memory and ports
+  from any window by using the follwoing commands:
+
+      FLAG flag state       i.e. FLAG CY 1
+      REG register value    i.e. REG R0 1001b
+      RAM address value     i.e. RAM 32 89h
+      PORT port value       i.e. PORT P2 24
+      RESET                 resets the cpu
+
+  to issue any of these commands simply start typing the
+  command.  A window will pop up allowing you to enter
+  the rest of the command.
+
+
+
+
+
+  The function keys perform the following functions:
+
+    F1 displays this help message.
+    F4 executes to the currently highlighted source line.
+    F7 executes the next instruction stepping into CALLs.
+    F8 executes the next instruction stepping over CALLs.
+    F10 returns you to the main menu.
+
+
+  When in the Register, Memory or Port windows you have
+  the addition command:
+
+    F9 Select radix for highlighted Register/Mem/Port.
+
+
+
+  The flags displayed in the flag window are defined
+  as follows:
+    CY   - Carry flag.
+    AC   - Auxiliary Carry flag.
+    BS   - Working register Bank switch Select.
+    F0   - User controlled Flag 0 bit.
+    F1   - User controlled Flag 1 bit.
+    MB   - Memory Bank select bit (bank 0 or 1)
+    T0   - T0 test pin.
+    T1   - T1 test pin.
+    INT  - Interrupt test pin.
+    IE   - Interrupt enable.
+    TOVF - Timer Overflow flag.
+    TCIE - Timer Counter Interrupt Enable.
+    TCE  - Timer Counter Enable.
+    T0E  - T0 counter enable.
+
+
+  The registers displayed in the register window are
+  defined as follows:
+    AC    - Accumulator
+    R0-R7 - General purpose register set
+    PSW   - Program Status word
+    SP    - Stack pointer
+    PC    - Program counter
+    TCNT  - Timer counter register
+
+  This a full screen editor.
+  The editor commands are:
+    <CTRL><K> <CTRL><B> - mark the beginning of a block.
+    <CTRL><K> <CTRL><K> - mark the end of a block.
+    <CTRL><K> <CTRL><Y> - delete the marked block.
+    <CTRL><K> <CTRL><W> - write marked block to a file.
+    <CTRL><K> <CTRL><R> - reads a file into the text
+                          buffer at cursor.
+    <CTRL><K> <CTRL><C> - copies the current block to the
+                          cursor location.
+    <CTRL><Q> <CTRL><Y> - delete to end of current line.
+    <CTRL><Y> - delete current line.
+    <CTRL><Q> <CTRL><F> - find specified text.
+    <CTRL><L> - repeat last find.
+    <INSERT> - toggles between over type and insert mode.
+    <BACK SPACE> - deletes the character to the left of
+                   the cursor.
+    <DELETE> - deletes the character under the cursor.
+
+  When errors are generated during assembly you will be
+  returned to this editor with the cursor positioned on
+  the offending line.  An error message will be displayed
+  on the line directly above the command line indicating
+  the type of error.
+
+  Press F2 to save the the text in the editor.
+  Press F8 for the next error.
+  Press F7 for a previously displayed error.
+  Press F10 for the main menu.
+
+  NOTE: Some errors may generate aditional errors.
+        Fixing the first error will generally fix
+        subsequent errors.
+
+  This program is unable to communicate with the
+  programmer.  Check that the proper parallel port
+  has been defined in the options menu.  Also check
+  that the cable is connected properly and that the
+  programmer power cord is pluged into an AC outlet.
+
+
+
+  This is the main program menu, from this menu you can
+
+    Program an 8748/49 with the code generated by the
+      assembly process.
+
+    Blank check the 8748/49 in the programmer.
+
+    Verify the contents of the code buffer with the
+      contents of the 8748/49
+
+    Read the contents of the 8748/49 in the programmer
+      into the code buffer and generate a file READ.HEX
+      containg the Intel hex format of this code.
+
+
+  This program is unable to communicate with the
+  programmer.  Check that the proper parallel port
+  has been defined in the options menu.  Also check
+  that the cable is connected properly and that the
+  programmer power cord is pluged into an AC outlet.
+
+
+
+  Enter the name of the file to save the contents of the
+  text buffer to.  This can be any valid DOS file name.
+
+
+  This window displays the current status of the
+  editor.  The name of the currently loaded file,
+  its size in bytes.  The size of the text buffer
+  and the number of bytes left in the buffer.
+
+
+
+  This window displays the result of the assembly
+  process.  The number of errors, lines assembled
+  and ending address is displayed.
+
+  Press any key to return to the main menu.
+
+
+
+  Select which parallel port your programmer is
+  connected to (LPT1, LPT2 or LPT3).  If you to not
+  have a programmer then set (or leave) the programmer
+  port to OFF.
+
+
+  Enter the number of spaces between tab stops used
+  by the editor.
+
+
+  Select the default output radix used to display
+  values in the Simulator.
+
+
+  Enter the drive and directory containing the 8048
+  program files.  This will allow you to access the
+  help files from a directory other than the one
+  containing the 8048 program files.
+
+
+
+  Select the target CPU is to be used in this design.
+  This allows the assembler to inform you if your
+  code becomes larger than the target CPU.  It also
+  specifies to the programmer which chip is being
+  programmed.
+
+
+  When an 8748/49 is in the programmers ZIF socket,
+  pin 11 of the ZIF socket (ALE) should toggle between
+  high and low.  The programmer has reported that the
+  ALE line is not toggling indicating that the chip
+  to be programmed is improperly socketed.
+
+  If the 8748/49 is in the socket properly then it
+  may be damaged and need to be replaced.
+
+
+  Insert the 8748/49 into the programmers ZIF socket.
+  Do not insert the 8748/49 until instructed to do so.
+  Inserting the 8748/47 into the program when it is
+  not ready may damage the 8748/49.
+
+
+   This window displays the version of your 8048 software
+   and the Copyright notice.  Press the ESC key to exit
+   from this help message then press any key to continue
+   with the 8048 program.
+
+   You are granted the right to duplicate the software
+   and freely distribute it.  Provided you do not charge
+   for the software.
+
+
+  Enter the name of the file to be loaded.  Press the
+  F2 function key to display a list of files to chose
+  from.
+
+  Pressing ENTER with no filespec specified
+  will display a list of all files within the current
+  directory with an .ASM extension.
+
+  You can display a list of files with any extension.
+  i.e. to display a list of files with a .SRC extension
+  enter *.SRC
+
