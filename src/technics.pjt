@@ -1,0 +1,53 @@
+[PROJECT]
+Target=TECHNIC2.HEX
+Development_Mode=48
+Processor=0x6c84
+ToolSuite=Microchip
+
+[Directories]
+Include=
+Library=
+LinkerScript=
+
+[Target Data]
+FileList=TECHNIC2.ASM;
+BuildTool=MPASM
+OptionString=/e+;/l+;/x-;/w0;/c+;/m+;/rhex;
+AdditionalOptionString=
+BuildRequired=0
+
+[TECHNICS.ASM]
+Type=4
+Path=
+FileList=
+BuildTool=
+OptionString=
+AdditionalOptionString=
+
+[TECHNIC1.ASM]
+Type=4
+Path=
+FileList=
+BuildTool=
+OptionString=
+AdditionalOptionString=
+
+[TECHNIC2.ASM]
+Type=4
+Path=
+FileList=
+BuildTool=
+OptionString=
+AdditionalOptionString=
+
+[mru-list]
+1=c:\pic\files\irxmit\technic2.asm
+2=c:\pic\files\irxmit\technic1.asm
+
+[Windows]
+3=0000 c:\pic\files\irxmit\technic2.asm 10 7 609 544 9 0
+2=0010 186 54 666 644 9 4
+1=0040 3 550 491 670 9 4
+0=0020 612 125 1012 455 9 0
+Stopwatch=724 44 1018 219 9 0
+
