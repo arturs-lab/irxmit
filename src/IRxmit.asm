@@ -7,6 +7,7 @@ fsr     equ     04h             ; file select register
 porta   equ     05h             ; port A
 portb   equ     06h             ; port B
 lcd     equ     06h             ; port B
+IRport	equ	06h		; port to which IR LED is connected
 intcon  equ     0bh             ; interrupt control register
 rc      equ     0ch             ; scratch register C
 rd      equ     0dh             ; scratch register D
@@ -23,8 +24,10 @@ f       equ     1               ; f is destination
 
 PORT_A_MASK	equ	0f3h	; initial status of port A, all bits are outputs
 
-SDA	equ     00h             ; EPROM data I/O bit
-SCL	equ     01h             ; EPROM clock bit
+DTA	equ     00h             ; EEPROM data I/O bit
+CLK	equ     01h             ; EEPROM clock bit
+CS	equ	02h		; EEPROM chip select
+PWR	equ	03h		; EEPROM power pin
 
 
 IRSlong equ     0b8h             ; long sync pulse decimal length 9ms
@@ -32,7 +35,7 @@ IRSshor equ     58h              ; short sync pulse 4 ms
 IRDpuls equ     0ch              ; light pulse 700 us
 IRDzero equ     0ah              ; "zero" 400 us
 IRDone  equ     20h              ; "one" 1500 us
-IRBit	equ	3		; bit 3 of port a controls IR transmitter
+IRBit	equ	0		; bit 3 of port IRport that controls IR transmitter
 
 
         org     0
@@ -103,10 +106,10 @@ exec    andlw   0fh     ; strip high nybble
 
 IRSend  movlw   20h
         movwf   fsr             ; setup RAM address pointer
-IRSync  bsf     porta,IRBit     ; enable IR transmitter
+IRSync  bsf     IRport,IRBit     ; enable IR transmitter
         movlw   IRSlong         ; Sync long pulse
         call    IRwait
-        bcf     porta,IRBit     ; disable transmitter
+        bcf     IRport,IRBit     ; disable transmitter
         movlw   IRSshor         ; Sync short pulse
         call    IRwait
 IRData  movlw   4               ; number of bytes to be sent
@@ -115,13 +118,13 @@ IRD2    movlw   8               ; number of bits in a byte
         movwf   count
         movf    ind0,W
         movwf   rf
-IRD1    bsf     porta,IRBit     ; turn on LED
+IRD1    bsf     IRport,IRBit     ; turn on LED
         movlw   IRDpuls         ; load pulse length
         call    IRwait          ; wait
         movlw   IRDzero         ; load delay length for zero
         btfsc   rf,0            ; if bit 0 of byte pointed to by fsr
         movlw   IRDone          ; is set, then use delay for "one"
-        bcf     porta,IRBit     ; turn off LED
+        bcf     IRport,IRBit     ; turn off LED
         call    IRwait
         rrf     rf,f            ; prepare next bit
         decfsz  count,f            ; decrement counter
@@ -129,10 +132,10 @@ IRD1    bsf     porta,IRBit     ; turn on LED
         incf    fsr,f           ; point to next byte
         decfsz  buf,f            ; check if this was last byte
         goto    IRD2            ; no, continue loop
-        bsf     porta,IRBit     ; turn on LED
+        bsf     IRport,IRBit     ; turn on LED
         movlw   IRDpuls         ; load pulse length
         call    IRwait          ; wait
-        bcf     porta,IRBit     ; turn off LED
+        bcf     IRport,IRBit     ; turn off LED
 
 ret     return                  ; you're done
 
@@ -146,14 +149,16 @@ IRw2    decfsz  re,f            ; 1/2   |              50 |
         goto    IRw1            ; 2                     2 |
         return                  ; 2                     2 |
 
-RomDec  decf    romptr,F        ; decrement EEPROM memory location
+RomDec  decf    IRcode,f        ; decrement code to be sent
+        comf    IRcode,W
+        movwf   IRcode+1
         goto    RomPrt
 
-RomInc  incf    romptr,F        ; increment EEPROM memory location
-
+RomInc  incf    IRcode,f        ; increment code to be sent
+        comf    IRcode,W
+        movwf   IRcode+1
 RomPrt  movlw   20h
         movwf   fsr             ; setup RAM address pointer
-	call	ROM_RD
         call    hexpr           ; print first byte
         incf    fsr,f
         call    hexpr           ; print second byte
@@ -163,106 +168,17 @@ RomPrt  movlw   20h
         call    hexpr           ; print fourth byte
         return
 
-ROM_RD	movlw	8		; setup bit counter
-	movwf	count
-	movlw	b'10100001'	; read from slave address 0
-	movwf	buf
-	bcf	porta,SDA	; send start bit
-	call	TICK
-	call	TICK
-	bcf	porta,SCL	; set clock low
-rr1	btfss	buf,7		; see what the current bit is
-	goto	rr2
-	bsf	porta,SDA	; send a '1'
-	goto	rr3
-rr2	bcf	porta,SDA	; send a '0'
-rr3	rlf	buf,F		; prepare next bit
-	call	TICK
-	call	TICK
-	bsf	porta,SCL	; set clock high
-	call	TICK
-	call	TICK
-	bcf	porta,SCL
-	call	TICK
-	decfsz	count,F		; decrement bit counter
-	goto	rr1		; continue until 8 bits sent
-	
-	return
+;
+; **************************************************************************
+; read word from serial EEPROM and place in location pointed to by fsr
+; at EpromRD entry data address is stored there
+; at EpromRD1 entry data address is in W
+; **************************************************************************
 
-ROM_STRT
-	bsf	porta,SCL	; set clock high
-	movlw	1		; prepare error status
-	btfss	porta,SCL	; locked?
-	call	ROM_ERR		; SCL locked low by device
-        bcf     porta,SDA       ; SDA goes low during SCL high = start condition
-	call	TICK		; wait a bit
-	bcf	porta,SCL	; start clock train
-	retlw	0		; return success
 
-ROM_STOP
-	bcf	porta,SDA	; return SDA to low
-	call	TICK
-	bsf	porta,SCL	; set clock high
-	movlw	1		; prepare error status
-	btfss	porta,SCL	; high?
-	call	ROM_ERR		; No, SCL locked low by device
-	BSF	porta,SDA	; SDA goes from low to high during SCL high
-	movlw	4
-	btfss	porta,SDA	; high?
-	call	ROM_ERR		; no, SDA bus not released
-	retlw	0		; return success
 
-ROM_IN
-	movlw	0f1h		; Force SDA line as input
-	tris	porta
-	bsf	porta,SDA	; set SDA for input
-	bcf	ind0,0
-	bsf	porta,SCL	; clock high
-	movlw	1
-	btfsc	porta,SCL
-	goto	R_I_1
-	call	ROM_ERR
-R_I_1	btfsc	porta,SDA
-	bsf	ind0,0
-	nop
-	nop
-	bcf	porta,SCL
-	retlw	0
 
-ROM_OUT
-	movlw	0f0h		; set SDA and SCL as outputs
-	tris	porta
-	btfss	ind0,7
-	goto	R_O_0
-	bsf	porta,SDA	; output bit 1
-	movlw	2
-	btfss	porta,SDA	; check for error code 2
-	call	ROM_ERR
-	goto	R_O_C		; go to clock pulse
-R_O_0
-	bcf	porta,SDA
-	call	TICK
-R_O_C
-	bsf	porta,SCL	; 
-	movlw	1
-	btfsc	porta,SCL	; check for error code 1
-	goto	R_O_2
-	call	ROM_ERR
-R_O_2
-	call	TICK
-	bcf	porta,SCL
-	retlw	0
 
-RX	movlw	.8
-	movwf	count
-	
-
-ROM_ERR
-	return
-
-TICK	nop
-	nop
-	return
 
 ;
 ; **************************************************************************
@@ -283,14 +199,14 @@ wait2   decfsz  re,f    ; 1+1 cycle
 ; Read keyboard, return result in W
 ; **************************************************************************
 rdkbd   bsf     status,rp0      ; open page 1
-        movlw   0f1h            ; enable keyboard input
+        movlw   0f0h            ; enable keyboard input
         movwf   portb
         bcf     status,rp0      ; open page 0
         swapf   portb,w         ; read keyboard
         movwf   rc              ; store result for a while
         bsf     status,rp0      ; open page 1
-        movlw   001h            ; set port B as output
-        movwf   portb           ; except for bit 0
+        movlw   00h            ; set port B as output
+        movwf   portb
         bcf     status,rp0      ; open page 0
         comf    rc,w            ; store result in W
         andlw   0fh             ; clear high nybble
@@ -327,17 +243,6 @@ tohex   andlw   0fh     ; strip high nybble
         retlw   'd'
         retlw   'e'
         retlw   'f'
-
-
-;
-; **************************************************************************
-; read word from serial EEPROM and place in location pointed to by fsr
-; at EpromRD entry data address is stored there
-; at EpromRD1 entry data address is in W
-; **************************************************************************
-
-
-
 
 
 ; **************************************************************************
@@ -483,8 +388,8 @@ wlcd    btfsc   lcd,7           ; wait here till lcd not busy
 wlcd1   andlw   LCD_ENAB1       ; disable lcd
         movwf   lcd
         bsf     status,rp0      ; open page 1
-        movlw   001h            ; set port B as output
-        movwf   lcd             ; except for bit 0
+        movlw   00h            ; set port B as output
+        movwf   lcd
         bcf     status,rp0      ; open page 0
         return
 
@@ -522,7 +427,7 @@ delay2         equ     0ffh  ; display delay
 ; 3 - RS register select
 ; 2 - R/W read / write
 ; 1 - E enable
-; 0 - EEPROM enable
+; 0 - IR output
 ;
 
         end
