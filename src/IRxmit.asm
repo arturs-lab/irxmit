@@ -6,7 +6,7 @@ status  equ     03h             ; status register
 fsr     equ     04h             ; file select register
 porta   equ     05h             ; port A
 portb   equ     06h             ; port B
-lcd     equ     06h             ; port B
+lcd     equ     06h             ; port to which LCD is connected
 IRport	equ	06h		; port to which IR LED is connected
 intcon  equ     0bh             ; interrupt control register
 rc      equ     0ch             ; scratch register C
@@ -16,9 +16,8 @@ rf      equ     0fh             ; scratch register F
 count   equ     10h             ; scratch register 10
 buf      equ     11h             ; scratch register 11
 romptr  equ     1fh             ; pointer to Eprom location
-IRcode  equ     22h             ; location of IR code in RAM
 opt     equ     01h             ; option register
-rp0     equ     5
+;rp0     equ     5
 W       equ     0               ; W is destination
 f       equ     1               ; f is destination
 
@@ -138,23 +137,29 @@ IRw2    decfsz  re,f            ; 1/2   |              50 |
         return                  ; 2                     2 |
 
 RomDec  decf    romptr,f        ; decrement rom address pointer
+	decf	romptr,f
         goto    RomPrt
 
 RomInc  incf    romptr,f        ; increment code to be sent
-RomPrt  movlw	20
-	movwf	fsr
-	movf	romptr,W	; fetch rom pointer
-	call	EpromRD1	; retrieve data from ROM
-	movlw   romptr
+	incf	romptr,f
+RomPrt  swapf    romptr,W
+        call    tohex           ; convert data to hex
+        call    WrLcdData       ; print result
+        movf    romptr,W
+        call    tohex           ; convert data to hex
+        call    WrLcdData       ; print result
+        movlw   20h
+        call    WrLcdData       ; print space
+        movlw   20h
         movwf   fsr             ; setup RAM address pointer
-	call	hexpr		; print current ROM address
-	incf	fsr,f
-	movlw	':'
-	call	WrLcdData
+        movf    romptr,W        ; get ROM address
+        call    EpromRD1        ; read data from eprom
         call    hexpr           ; print first byte
         incf    fsr,f
         call    hexpr           ; print second byte
-        incf    fsr,f
+        incf    fsr,f           ; point to next RAM location (22h)
+        incf    romptr,W        ; fetch incremented eprom address
+        call    EpromRD1        ; read second half of data
         call    hexpr           ; print third byte
         incf    fsr,f
         call    hexpr           ; print fourth byte
@@ -166,13 +171,9 @@ RomPrt  movlw	20
 ; at EpromRD entry data address is stored there
 ; at EpromRD1 entry data address is in W
 ; **************************************************************************
-
 EpromRD1
         movwf   ind0            ; store W in ind0
 EpromRD clrf    ROMport		; set all outputs low
-        bsf     status,rp0      ; open page 1
-        bcf     ROMport,ROM_DTA	; set ROM_DTA bit to output
-        bcf     status,rp0      ; open page 0
         bsf     ROMport,ROM_DTA	; set DI high
         bsf     ROMport,ROM_CS	; set CS high
         call    tick1
