@@ -1,0 +1,59 @@
+
+1100	0001	0101	0010	0011	1000	1110	0111 
+C	1	5	2	3	8	e	7
+
+1100	0001	0101	0010	1100	0000	0011	1111
+c	1	5	2	c	0	3	f
+
+
+
+class_up	D2 6D 00 FF
+class_dn	D2 6D 01 FE
+vol_up	D2 6D 02 FD
+vol_dn	D2 6D 03 FC
+power	D2 6D 04 FB
+mute	D2 6D 05 FA
+tape2	D2 6D 07 F8
+tape1	D2 6D 08 F7
+cd	D2 6D 09 F6
+phono	D2 6D 0A F5
+tuner	D2 6D 0B F4
+video3	D2 6D 0D F2
+video2	D2 6D 0E F1
+video1	D2 6D 0F F0
+
+deck_a_stop	D2 6D 4D B2
+deck_a_fwd	D2 6D 4E B1
+deck_a_rev	D2 6D 4F B0
+deck_a_rec	D2 6D 50 AF
+deck_a_ffwd	D2 6D 51 AE
+deck_a_frev	D2 6D 52 AD
+deck_b_stop	D2 6D 13 EC
+deck_b_fwd	D2 6D 15 EA
+deck_b_rev	D2 6D 16 E9
+deck_b_rec	D2 6D 18 E7
+deck_b_ffwd	D2 6D 19 E6
+deck_b_frev	D2 6D 1A E5
+
+cd_play	83 4A 03 FC
+cd_stop	83 4A 0B F4
+cd_next	83 4A 04 FB
+cd_prev	83 4A 05 FA
+cd_pause	83 4A 07 F8
+cd_disc	83 4A 13 EC
+
+rear_up	D2 6D 42 BD
+rear_dn	D2 6D 43 BC
+class	D2 6D 4A B5
+surr_mode	D2 6D 4C B3
+surr_delay	D2 6D 53 AC
+main_spkr	D2 6D 59 A6
+rem_spkr	D2 6D 5A A5
+sleep	D2 6D 5D A2
+cntr_up	D2 6D 80 7F
+cntr_dn	D2 6D 81 7E
+surr_test	D2 6D 9A 65
+src_up	D2 6D C2 3D
+src_dn	D2 6D C3 3C
+multisrc	D2 6D CC 33
+

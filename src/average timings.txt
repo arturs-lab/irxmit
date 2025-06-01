@@ -1,0 +1,7 @@
+ZERO	 0.445 ms
+pulse	 0.638 ms
+ONE	 1.702 ms
+STRT del 4.435 ms
+START	 9.060 ms
+	38.696 ms
+	96.070 ms

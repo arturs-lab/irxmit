@@ -1,0 +1,11 @@
+00 a8	; deck_b_stop
+01 a9	; eject
+02 aa	; deck_b_ffwd
+03 ab	; deck_b_frev
+06 ae	; pause
+08 a0	; rec
+0a a2	; deck_b_fwd
+0b a3	; deck_b_rev
+54 fc	; reset counter
+82 a2	; rec mute
+95 3d	; deck 1/2
