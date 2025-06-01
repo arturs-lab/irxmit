@@ -12,8 +12,8 @@ rc      equ     0ch             ; scratch register C
 rd      equ     0dh             ; scratch register D
 re      equ     0eh             ; scratch register E
 rf      equ     0fh             ; scratch register F
-rg      equ     10h             ; scratch register 10
-rh      equ     11h             ; scratch register 11
+count   equ     10h             ; scratch register 10
+buf      equ     11h             ; scratch register 11
 romptr  equ     1fh             ; pointer to Eprom location
 IRcode  equ     22h             ; location of IR code in RAM
 opt     equ     01h             ; option register
@@ -21,11 +21,10 @@ rp0     equ     5
 W       equ     0               ; W is destination
 f       equ     1               ; f is destination
 
-PORT_A_MASK	equ	0f7h	; initial status of port A
+PORT_A_MASK	equ	0f3h	; initial status of port A, all bits are outputs
 
-ROM_DTA equ     07h             ; EPROM data I/O bit
-ROM_CLK equ     02h             ; EPROM clock bit
-ROM_CS  equ     00h             ; EPROM enable bit, active high
+SDA	equ     00h             ; EPROM data I/O bit
+SCL	equ     01h             ; EPROM clock bit
 
 
 IRSlong equ     0b8h             ; long sync pulse decimal length 9ms
@@ -70,9 +69,9 @@ IRBit	equ	3		; bit 3 of port a controls IR transmitter
         call    RomPrt
 
 main    call    rdkbd           ; read keyboard
-        movwf   rh
+        movwf   buf
         call    LcdHome
-        movf    rh,W
+        movf    buf,W
         call    exec            ; execute code for key pressed
         movlw   delay2          ; wait a while...
         call    wait
@@ -111,9 +110,9 @@ IRSync  bsf     porta,IRBit     ; enable IR transmitter
         movlw   IRSshor         ; Sync short pulse
         call    IRwait
 IRData  movlw   4               ; number of bytes to be sent
-        movwf   rh
+        movwf   buf
 IRD2    movlw   8               ; number of bits in a byte
-        movwf   rg
+        movwf   count
         movf    ind0,W
         movwf   rf
 IRD1    bsf     porta,IRBit     ; turn on LED
@@ -125,10 +124,10 @@ IRD1    bsf     porta,IRBit     ; turn on LED
         bcf     porta,IRBit     ; turn off LED
         call    IRwait
         rrf     rf,f            ; prepare next bit
-        decfsz  rg,f            ; decrement counter
+        decfsz  count,f            ; decrement counter
         goto    IRD1            ; close inner loop
         incf    fsr,f           ; point to next byte
-        decfsz  rh,f            ; check if this was last byte
+        decfsz  buf,f            ; check if this was last byte
         goto    IRD2            ; no, continue loop
         bsf     porta,IRBit     ; turn on LED
         movlw   IRDpuls         ; load pulse length
@@ -147,16 +146,14 @@ IRw2    decfsz  re,f            ; 1/2   |              50 |
         goto    IRw1            ; 2                     2 |
         return                  ; 2                     2 |
 
-RomDec  decf    IRcode,f        ; decrement code to be sent
-        comf    IRcode,W
-        movwf   IRcode+1
+RomDec  decf    romptr,F        ; decrement EEPROM memory location
         goto    RomPrt
 
-RomInc  incf    IRcode,f        ; increment code to be sent
-        comf    IRcode,W
-        movwf   IRcode+1
+RomInc  incf    romptr,F        ; increment EEPROM memory location
+
 RomPrt  movlw   20h
         movwf   fsr             ; setup RAM address pointer
+	call	ROM_RD
         call    hexpr           ; print first byte
         incf    fsr,f
         call    hexpr           ; print second byte
@@ -165,6 +162,108 @@ RomPrt  movlw   20h
         incf    fsr,f
         call    hexpr           ; print fourth byte
         return
+
+ROM_RD	movlw	8		; setup bit counter
+	movwf	count
+	movlw	b'10100001'	; read from slave address 0
+	movwf	buf
+	bcf	porta,SDA	; send start bit
+	call	TICK
+	call	TICK
+	bcf	porta,SCL	; set clock low
+rr1	btfss	buf,7		; see what the current bit is
+	goto	rr2
+	bsf	porta,SDA	; send a '1'
+	goto	rr3
+rr2	bcf	porta,SDA	; send a '0'
+rr3	rlf	buf,F		; prepare next bit
+	call	TICK
+	call	TICK
+	bsf	porta,SCL	; set clock high
+	call	TICK
+	call	TICK
+	bcf	porta,SCL
+	call	TICK
+	decfsz	count,F		; decrement bit counter
+	goto	rr1		; continue until 8 bits sent
+	
+	return
+
+ROM_STRT
+	bsf	porta,SCL	; set clock high
+	movlw	1		; prepare error status
+	btfss	porta,SCL	; locked?
+	call	ROM_ERR		; SCL locked low by device
+        bcf     porta,SDA       ; SDA goes low during SCL high = start condition
+	call	TICK		; wait a bit
+	bcf	porta,SCL	; start clock train
+	retlw	0		; return success
+
+ROM_STOP
+	bcf	porta,SDA	; return SDA to low
+	call	TICK
+	bsf	porta,SCL	; set clock high
+	movlw	1		; prepare error status
+	btfss	porta,SCL	; high?
+	call	ROM_ERR		; No, SCL locked low by device
+	BSF	porta,SDA	; SDA goes from low to high during SCL high
+	movlw	4
+	btfss	porta,SDA	; high?
+	call	ROM_ERR		; no, SDA bus not released
+	retlw	0		; return success
+
+ROM_IN
+	movlw	0f1h		; Force SDA line as input
+	tris	porta
+	bsf	porta,SDA	; set SDA for input
+	bcf	ind0,0
+	bsf	porta,SCL	; clock high
+	movlw	1
+	btfsc	porta,SCL
+	goto	R_I_1
+	call	ROM_ERR
+R_I_1	btfsc	porta,SDA
+	bsf	ind0,0
+	nop
+	nop
+	bcf	porta,SCL
+	retlw	0
+
+ROM_OUT
+	movlw	0f0h		; set SDA and SCL as outputs
+	tris	porta
+	btfss	ind0,7
+	goto	R_O_0
+	bsf	porta,SDA	; output bit 1
+	movlw	2
+	btfss	porta,SDA	; check for error code 2
+	call	ROM_ERR
+	goto	R_O_C		; go to clock pulse
+R_O_0
+	bcf	porta,SDA
+	call	TICK
+R_O_C
+	bsf	porta,SCL	; 
+	movlw	1
+	btfsc	porta,SCL	; check for error code 1
+	goto	R_O_2
+	call	ROM_ERR
+R_O_2
+	call	TICK
+	bcf	porta,SCL
+	retlw	0
+
+RX	movlw	.8
+	movwf	count
+	
+
+ROM_ERR
+	return
+
+TICK	nop
+	nop
+	return
+
 ;
 ; **************************************************************************
 ; wait for a period specified in W
@@ -185,13 +284,13 @@ wait2   decfsz  re,f    ; 1+1 cycle
 ; **************************************************************************
 rdkbd   bsf     status,rp0      ; open page 1
         movlw   0f1h            ; enable keyboard input
-        movwf   lcd
+        movwf   portb
         bcf     status,rp0      ; open page 0
-        swapf   lcd,w           ; read keyboard
+        swapf   portb,w         ; read keyboard
         movwf   rc              ; store result for a while
         bsf     status,rp0      ; open page 1
         movlw   001h            ; set port B as output
-        movwf   lcd             ; except for bit 0
+        movwf   portb           ; except for bit 0
         bcf     status,rp0      ; open page 0
         comf    rc,w            ; store result in W
         andlw   0fh             ; clear high nybble
@@ -428,4 +527,3 @@ delay2         equ     0ffh  ; display delay
 
         end
 
-
