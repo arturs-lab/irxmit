@@ -22,11 +22,12 @@ rp0     equ     5
 W       equ     0               ; W is destination
 f       equ     1               ; f is destination
 
-PORT_A_MASK	equ	0f3h	; initial status of port A, all bits are outputs
+PORT_A_MASK	equ	00h	; initial status of port A, all bits are outputs
 
-DTA	equ     00h             ; EEPROM data I/O bit
-CLK	equ     01h             ; EEPROM clock bit
-CS	equ	02h		; EEPROM chip select
+ROMport	equ	05h		; port to which 
+ROM_DTA	equ     00h             ; EEPROM data I/O bit
+ROM_CLK	equ     01h             ; EEPROM clock bit
+ROM_CS	equ	02h		; EEPROM chip select
 PWR	equ	03h		; EEPROM power pin
 
 
@@ -56,19 +57,6 @@ IRBit	equ	0		; bit 3 of port IRport that controls IR transmitter
         call    initlcd         ; initialize LCD
 
         clrf    romptr          ; reset pointer to ROM
-        movlw   20h
-        movwf   fsr             ; setup RAM address pointer
-        movlw   083h             ; initialize message codes to
-        movwf   ind0            ; c1 52 c0 3f
-        movlw	04ah
-        incf    fsr,f
-        movwf   ind0
-        movlw	003h
-        incf    fsr,f
-        movwf   ind0
-        movlw	0fch
-        incf    fsr,f
-        movwf   ind0
         call    RomPrt
 
 main    call    rdkbd           ; read keyboard
@@ -149,16 +137,20 @@ IRw2    decfsz  re,f            ; 1/2   |              50 |
         goto    IRw1            ; 2                     2 |
         return                  ; 2                     2 |
 
-RomDec  decf    IRcode,f        ; decrement code to be sent
-        comf    IRcode,W
-        movwf   IRcode+1
+RomDec  decf    romptr,f        ; decrement rom address pointer
         goto    RomPrt
 
-RomInc  incf    IRcode,f        ; increment code to be sent
-        comf    IRcode,W
-        movwf   IRcode+1
-RomPrt  movlw   20h
+RomInc  incf    romptr,f        ; increment code to be sent
+RomPrt  movlw	20
+	movwf	fsr
+	movf	romptr,W	; fetch rom pointer
+	call	EpromRD1	; retrieve data from ROM
+	movlw   romptr
         movwf   fsr             ; setup RAM address pointer
+	call	hexpr		; print current ROM address
+	incf	fsr,f
+	movlw	':'
+	call	WrLcdData
         call    hexpr           ; print first byte
         incf    fsr,f
         call    hexpr           ; print second byte
@@ -175,10 +167,69 @@ RomPrt  movlw   20h
 ; at EpromRD1 entry data address is in W
 ; **************************************************************************
 
+EpromRD1
+        movwf   ind0            ; store W in ind0
+EpromRD clrf    ROMport		; set all outputs low
+        bsf     status,rp0      ; open page 1
+        bcf     ROMport,ROM_DTA	; set ROM_DTA bit to output
+        bcf     status,rp0      ; open page 0
+        bsf     ROMport,ROM_DTA	; set DI high
+        bsf     ROMport,ROM_CS	; set CS high
+        call    tick1
+        call    tick1
+        bcf     ROMport,ROM_DTA	; clear data bit
+        call    tick1           ; READ opcode clocked in, now address
+        movlw   006h            ; number of bits in address
+        movwf   count		; setup counter
+erd1    bcf     ROMport,ROM_DTA	; begin with address bit = 0
+        btfsc   ind0,5          ; check if address bit is high
+        bsf     ROMport,ROM_DTA	; set data line high if so
+        rlf     ind0,f          ; prepare next bit in address
+        call    tick1           ; clock in data bit
+        decfsz  count,f		; decrement counter
+        goto    erd1            ; continue loop
+        bcf     ROMport,ROM_DTA	; address clocked in, now read data
+        bsf     ROMport,ROM_CLK
+        bsf     status,rp0      ; open page 1
+        bsf     ROMport,ROM_DTA	; set ROM_DTA to input
+        bcf     status,rp0      ; open page 0
+        incf    fsr,f           ; read high byte first
+        movlw   008h            ; count data read
+        movwf   count
+erd2    rlf     ind0,f          ; prepare ind0 for next bit
+        bcf     ind0,0          ; let's clear data bit for starters
+        btfsc   ROMport,ROM_DTA	; and skip next line if data =0
+        bsf     ind0,0          ; but if it is 1, let's correct ind0
+        bcf     ROMport,ROM_CLK	; send clock pulse
+        bsf     ROMport,ROM_CLK
+        decfsz  count,f		; decrement counter and see if we're done
+        goto    erd2            ; no, continue
+        decf    fsr,f           ; now read low byte
+        movlw   008h            ; count data read
+        movwf   count
+erd3    rlf     ind0,f          ; prepare ind0 for next bit
+        bcf     ind0,0          ; let's clear data bit for starters
+        btfsc   ROMport,ROM_DTA	; and skip next line if data =0
+        bsf     ind0,0          ; but if it is 1, let's correct ind0
+        bcf     ROMport,ROM_CLK	; send clock pulse
+        bsf     ROMport,ROM_CLK
+        decfsz  count,f		; decrement counter and see if we're done
+        goto    erd3            ; no, continue
+        clrf    ROMport		; clear all lines
+        bsf     status,rp0      ; open page 1
+        movlw   00h		; set ROMport as output
+        movwf   ROMport
+        bcf     status,rp0      ; open page 0
+        return                  ; done
 
 
-
-
+;
+; **************************************************************************
+; send clock pulse
+; **************************************************************************
+tick1   bsf     ROMport,ROM_CLK     ; set clock high
+        bcf     ROMport,ROM_CLK     ; and reset
+        return
 
 ;
 ; **************************************************************************
@@ -219,7 +270,7 @@ hexpr   swapf   ind0,W          ; fetch data from fsr->
         call    tohex
         call    WrLcdData       ; print result
         movlw   20h             ; print space
-        call    WrLcdData       ; print result
+        goto    WrLcdData       ; print result
 
 ;
 ; **************************************************************************
@@ -338,7 +389,7 @@ WrLcdStatus
 
 ;
 ; **************************************************************************
-; write lcd data byte, put ascii data to be written in the acc
+; write lcd data byte, put ascii data to be written in the W register
 ; **************************************************************************
 WrLcdData:
         movwf   rc              ; save char in scratch register
