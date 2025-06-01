@@ -16,7 +16,7 @@ rf      equ     0fh             ; scratch register F
 count   equ     10h             ; scratch register 10
 buf      equ     11h             ; scratch register 11
 romptr  equ     1fh             ; pointer to Eprom location
-IRcode  equ     22h             ; location of IR code in RAM
+IRcode  equ     24h             ; location of IR code in RAM
 opt     equ     01h             ; option register
 rp0     equ     5
 W       equ     0               ; W is destination
@@ -24,11 +24,6 @@ f       equ     1               ; f is destination
 
 PORT_A_MASK	equ	0f3h	; initial status of port A, all bits are outputs
 
-ROMport	equ	05h		; port to which 
-ROM_DTA	equ     00h             ; EEPROM data I/O bit
-ROM_CLK	equ     01h             ; EEPROM clock bit
-ROM_CS	equ	02h		; EEPROM chip select
-PWR	equ	03h		; EEPROM power pin
 
 IRSlong equ     .80             ; long sync pulse decimal length 4ms
 IRSshor equ     .34              ; short sync pulse 1.6 ms
@@ -56,6 +51,25 @@ IRBit	equ	0		; bit 3 of port IRport that controls IR transmitter
         call    initlcd         ; initialize LCD
 
         clrf    romptr          ; reset pointer to ROM
+        movlw   20h
+        movwf   fsr             ; setup RAM address pointer
+        movlw   002h             ; initialize message codes to
+        movwf   ind0            ; 02 20 a0 08 00 a8
+        movlw	020h
+        incf    fsr,f
+        movwf   ind0
+        movlw	0a0h
+        incf    fsr,f
+        movwf   ind0
+        movlw	008h
+        incf    fsr,f
+        movwf   ind0
+        movlw	000h
+        incf    fsr,f
+        movwf   ind0
+        movlw	0a8h
+        incf    fsr,f
+        movwf   ind0
         call    RomPrt
 
 main    call    rdkbd           ; read keyboard
@@ -136,107 +150,31 @@ IRw2    decfsz  re,f            ; 1/2   |              50 |
         goto    IRw1            ; 2                     2 |
         return                  ; 2                     2 |
 
-RomDec  decf    romptr,f        ; decrement rom address pointer
-	decf	romptr,f
-	decf	romptr,f
+RomDec  decf    IRcode,f        ; decrement code to be sent
+        movlw	8
+	addwf	IRcode,W
+	andlw	0fh
+        movwf   IRcode+1
+	movlw	0a0h
+	addwf	IRcode,W
+	andlw	0f0h
+	iorwf	IRcode+1,f
         goto    RomPrt
 
-RomInc  incf    romptr,f        ; increment code to be sent
-	incf	romptr,f
-	incf	romptr,f
-RomPrt  swapf    romptr,W
-        call    tohex           ; convert data to hex
-        call    WrLcdData       ; print result
-        movf    romptr,W
-        call    tohex           ; convert data to hex
-        call    WrLcdData       ; print result
-        movlw   ' '
-        call    WrLcdData       ; print space
-        movlw   20h
+RomInc  incf    IRcode,f        ; increment code to be sent
+        movlw	8
+	addwf	IRcode,W
+	andlw	0fh
+        movwf   IRcode+1
+	movlw	0a0h
+	addwf	IRcode,W
+	andlw	0f0h
+	iorwf	IRcode+1,f
+RomPrt  movlw   IRcode
         movwf   fsr             ; setup RAM address pointer
-        movf    romptr,W        ; get ROM address
-        call    EpromRD1        ; read data from eprom
-        incf    fsr,f
-        incf    fsr,f           ; point to next RAM location (22h)
-        incf    romptr,W        ; fetch incremented eprom address
-        call    EpromRD1        ; read second half of data
-        incf    fsr,f
-        incf    fsr,f           ; point to next RAM location (24h)
-        incf    romptr,f        ; fetch incremented eprom address
-	incf	romptr,W
-	decf	romptr,f
-        call    EpromRD1        ; read second half of data
         call    hexpr           ; print fifth byte
         incf    fsr,f
         call    hexpr           ; print sixth byte
-        return
-
-
-;
-; **************************************************************************
-; read word from serial EEPROM and place in location pointed to by fsr
-; at EpromRD entry data address is stored there
-; at EpromRD1 entry data address is in W
-; **************************************************************************
-EpromRD1
-        movwf   ind0            ; store W in ind0
-EpromRD clrf    ROMport		; set all outputs low
-        bsf     ROMport,ROM_DTA	; set DI high
-        bsf     ROMport,ROM_CS	; set CS high
-        call    tick1
-        call    tick1
-        bcf     ROMport,ROM_DTA	; clear data bit
-        call    tick1           ; READ opcode clocked in, now address
-        movlw   006h            ; number of bits in address
-        movwf   count		; setup counter
-erd1    bcf     ROMport,ROM_DTA	; begin with address bit = 0
-        btfsc   ind0,5          ; check if address bit is high
-        bsf     ROMport,ROM_DTA	; set data line high if so
-        rlf     ind0,f          ; prepare next bit in address
-        call    tick1           ; clock in data bit
-        decfsz  count,f		; decrement counter
-        goto    erd1            ; continue loop
-        bcf     ROMport,ROM_DTA	; address clocked in, now read data
-        bsf     ROMport,ROM_CLK
-        bsf     status,rp0      ; open page 1
-        bsf     ROMport,ROM_DTA	; set ROM_DTA to input
-        bcf     status,rp0      ; open page 0
-        incf    fsr,f           ; read high byte first
-        movlw   008h            ; count data read
-        movwf   count
-erd2    rlf     ind0,f          ; prepare ind0 for next bit
-        bcf     ind0,0          ; let's clear data bit for starters
-        btfsc   ROMport,ROM_DTA	; and skip next line if data =0
-        bsf     ind0,0          ; but if it is 1, let's correct ind0
-        bcf     ROMport,ROM_CLK	; send clock pulse
-        bsf     ROMport,ROM_CLK
-        decfsz  count,f		; decrement counter and see if we're done
-        goto    erd2            ; no, continue
-        decf    fsr,f           ; now read low byte
-        movlw   008h            ; count data read
-        movwf   count
-erd3    rlf     ind0,f          ; prepare ind0 for next bit
-        bcf     ind0,0          ; let's clear data bit for starters
-        btfsc   ROMport,ROM_DTA	; and skip next line if data =0
-        bsf     ind0,0          ; but if it is 1, let's correct ind0
-        bcf     ROMport,ROM_CLK	; send clock pulse
-        bsf     ROMport,ROM_CLK
-        decfsz  count,f		; decrement counter and see if we're done
-        goto    erd3            ; no, continue
-        clrf    ROMport		; clear all lines
-        bsf     status,rp0      ; open page 1
-        movlw   00h		; set ROMport as output
-        movwf   ROMport
-        bcf     status,rp0      ; open page 0
-        return                  ; done
-
-
-;
-; **************************************************************************
-; send clock pulse
-; **************************************************************************
-tick1   bsf     ROMport,ROM_CLK     ; set clock high
-        bcf     ROMport,ROM_CLK     ; and reset
         return
 
 ;
